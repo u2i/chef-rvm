@@ -35,7 +35,7 @@ node["rvm"]["installs"].each do |user, opts|
         gpg_command = cmd.stdout.chomp
 
         exec = Chef::Resource::Execute.new 'Add RVM gpg key', run_context
-        exec.command "#{gpg_command} --keyserver hkp://keys.gnupg.net --recv-keys #{node['rvm']['gpg_key']}"
+        exec.command "#{gpg_command} --keyserver hkp://keyserver.ubuntu.com --recv-keys #{node['rvm']['gpg_key']}"
         exec.user user['user']
         exec.environment 'HOME' => user['home']
         exec.guard_interpreter :bash
