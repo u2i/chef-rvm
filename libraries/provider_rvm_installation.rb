@@ -104,7 +104,7 @@ class Chef
       end
 
       def run_install_cmd
-        rvm_shell_out!(%{bash #{rvm_installer_path} #{new_resource.installer_flags}})
+        rvm_shell_out!(%{/bin/bash #{rvm_installer_path} #{new_resource.installer_flags}})
       end
 
       def rvm_installer_path
