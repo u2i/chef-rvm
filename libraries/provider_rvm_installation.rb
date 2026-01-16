@@ -104,7 +104,7 @@ class Chef
       end
 
       def run_install_cmd
-        rvm_shell_out!(%{/bin/bash #{rvm_installer_path} #{new_resource.installer_flags}})
+        rvm_shell_out!(%{bash #{rvm_installer_path} #{new_resource.installer_flags}})
       end
 
       def rvm_installer_path
@@ -151,7 +151,8 @@ class Chef
         }
 
         Chef::Log.debug("Running [#{cmd}] with #{opts}")
-        shell_out(cmd, opts)
+        # Chef 18 shell_out needs explicit shell invocation when using options
+        shell_out("/bin/bash", "-c", cmd, opts)
       end
 
       def rvm_shell_out!(*args)
