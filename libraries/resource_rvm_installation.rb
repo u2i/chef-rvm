@@ -26,6 +26,7 @@ class Chef
   class Resource
 
     class RvmInstallation < Chef::Resource
+      provides :rvm_installation
 
       state_attrs :installed, :version
 
