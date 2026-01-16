@@ -114,10 +114,13 @@ class Chef
       end
 
       def installed?
+        return false unless ::File.exist?("#{rvm_path}/scripts/rvm")
         cmd = rvm_shell_out(
           %{bash -c "source #{rvm_path}/scripts/rvm && type rvm"}
         )
         (cmd.exitstatus == 0 && cmd.stdout.lines.first == "rvm is a function\n")
+      rescue Errno::ENOENT
+        false
       end
 
       def version
