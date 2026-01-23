@@ -29,6 +29,7 @@ attribute :source,        :kind_of => String
 attribute :options,       :kind_of => Hash
 attribute :gem_binary,    :kind_of => String
 attribute :user,          :kind_of => String
+attribute :include_default_source, :kind_of => [TrueClass, FalseClass], :default => true
 
 def initialize(*args)
   super
