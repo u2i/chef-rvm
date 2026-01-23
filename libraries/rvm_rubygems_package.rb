@@ -138,10 +138,14 @@ class Chef
           # ensure each ruby is installed and gemset exists
           ruby_strings.each do |rubie|
             next if rubie == 'system'
-            e = ::Chef::Resource::RvmEnvironment.new(rubie, @run_context)
-            e.user(gem_env.user) if gem_env.user
-            e.action(:nothing)
-            e.run_action(:create)
+            # Use declare_resource for Chef 18 compatibility
+            e = @run_context.resource_collection.find(rvm_environment: rubie) rescue nil
+            unless e
+              e = Chef::Resource.resource_for_node(:rvm_environment, @run_context.node).new(rubie, @run_context)
+              e.user(gem_env.user) if gem_env.user
+              e.action(:nothing)
+              e.run_action(:create)
+            end
           end
 
           install_via_gem_command(name, version)
