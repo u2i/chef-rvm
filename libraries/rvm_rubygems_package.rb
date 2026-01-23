@@ -33,6 +33,18 @@ class Chef
     class Package
       class RVMRubygems < Chef::Provider::Package::Rubygems
         include Chef::RVM::ShellHelpers
+
+        # Fix for apt cookbook's which method conflict with Chef 18
+        # apt cookbook defines which(cmd) with 1 arg but Chef 18 calls it with 2
+        def which(cmd, *args)
+          ENV['PATH'] = '' if ENV['PATH'].nil?
+          paths = (ENV['PATH'].split(::File::PATH_SEPARATOR) + %w(/bin /usr/bin /sbin /usr/sbin))
+          paths.each do |path|
+            possible = File.join(path, cmd)
+            return possible if File.executable?(possible)
+          end
+          nil
+        end
         include Chef::RVM::SetHelpers
 
         class RVMGemEnvironment < AlternateGemEnvironment
