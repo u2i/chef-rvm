@@ -114,10 +114,13 @@ class Chef
       end
 
       def installed?
+        return false unless ::File.exist?("#{rvm_path}/scripts/rvm")
         cmd = rvm_shell_out(
           %{bash -c "source #{rvm_path}/scripts/rvm && type rvm"}
         )
         (cmd.exitstatus == 0 && cmd.stdout.lines.first == "rvm is a function\n")
+      rescue Errno::ENOENT
+        false
       end
 
       def version
@@ -148,7 +151,8 @@ class Chef
         }
 
         Chef::Log.debug("Running [#{cmd}] with #{opts}")
-        shell_out(cmd, opts)
+        # Chef 18 shell_out needs explicit shell invocation when using options
+        shell_out("/bin/bash", "-c", cmd, opts)
       end
 
       def rvm_shell_out!(*args)

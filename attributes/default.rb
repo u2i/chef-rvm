@@ -58,11 +58,11 @@ default['rvm']['gpg_key']       = '409B6B1796C275462A1703113804BB82D39DC0E3 7D2B
 
 case node["platform_version"]
 when "redhat","centos","fedora","scientific","amazon"
-  node.set['rvm']['install_pkgs']   = %w{sed grep tar gzip bzip2 bash curl git}
+  node.default['rvm']['install_pkgs']   = %w{sed grep tar gzip bzip2 bash curl git}
 when "debian","ubuntu","suse"
-  node.set['rvm']['install_pkgs']   = %w{sed grep tar gzip bzip2 bash curl git-core}
+  node.default['rvm']['install_pkgs']   = %w{sed grep tar gzip bzip2 bash curl git-core}
 when "gentoo"
-  node.set['rvm']['install_pkgs']   = %w{git}
+  node.default['rvm']['install_pkgs']   = %w{git}
 when "mac_os_x", "mac_os_x_server"
-  node.set['rvm']['install_pkgs']   = %w{git}
+  node.default['rvm']['install_pkgs']   = %w{git}
 end

@@ -33,6 +33,18 @@ class Chef
     class Package
       class RVMRubygems < Chef::Provider::Package::Rubygems
         include Chef::RVM::ShellHelpers
+
+        # Fix for apt cookbook's which method conflict with Chef 18
+        # apt cookbook defines which(cmd) with 1 arg but Chef 18 calls it with 2
+        def which(cmd, *args)
+          ENV['PATH'] = '' if ENV['PATH'].nil?
+          paths = (ENV['PATH'].split(::File::PATH_SEPARATOR) + %w(/bin /usr/bin /sbin /usr/sbin))
+          paths.each do |path|
+            possible = ::File.join(path, cmd)
+            return possible if ::File.executable?(possible)
+          end
+          nil
+        end
         include Chef::RVM::SetHelpers
 
         class RVMGemEnvironment < AlternateGemEnvironment
@@ -126,10 +138,14 @@ class Chef
           # ensure each ruby is installed and gemset exists
           ruby_strings.each do |rubie|
             next if rubie == 'system'
-            e = ::Chef::Resource::RvmEnvironment.new(rubie, @run_context)
-            e.user(gem_env.user) if gem_env.user
-            e.action(:nothing)
-            e.run_action(:create)
+            # Use declare_resource for Chef 18 compatibility
+            e = @run_context.resource_collection.find(rvm_environment: rubie) rescue nil
+            unless e
+              e = Chef::Resource.resource_for_node(:rvm_environment, @run_context.node).new(rubie, @run_context)
+              e.user(gem_env.user) if gem_env.user
+              e.action(:nothing)
+              e.run_action(:create)
+            end
           end
 
           install_via_gem_command(name, version)
@@ -146,7 +162,7 @@ class Chef
           end
 
           cmd = %{rvm #{ruby_strings.join(',')} #{rvm_do(gem_env.user)} #{gem_binary_path}}
-          cmd << %{ install #{name} -q --no-rdoc --no-ri -v "#{version}"}
+          cmd << %{ install #{name} -q --no-document -v "#{version}"}
           cmd << %{#{src}#{opts}}
 
           if gem_env.user
